@@ -1,0 +1,3 @@
+[submodule "part3/libsystemctlm-soc"]
+	path = part3/libsystemctlm-soc
+	url = https://github.com/Xilinx/libsystemctlm-soc.git

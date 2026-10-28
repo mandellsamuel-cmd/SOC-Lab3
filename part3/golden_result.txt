@@ -1,0 +1,39 @@
+dot-product accelerator golden test, 18 cases
+[PASS] ones_unit_scale            got 0x44600000 exp 0x44600000  (896)  busy-polls=4  sim-time=8080 ns
+        double-precision reference 896, relative diff 0
+[PASS] max_positive_sum           got 0x4b600000 exp 0x4b600000  (14680064)  busy-polls=4  sim-time=8080 ns
+        double-precision reference 14680064, relative diff 0
+[PASS] max_negative_sum           got 0xcb5e4000 exp 0xcb5e4000  (-14565376)  busy-polls=4  sim-time=8080 ns
+        double-precision reference -14565376, relative diff 0
+[PASS] all_zero_quants            got 0x00000000 exp 0x00000000  (0)  busy-polls=4  sim-time=8080 ns
+        double-precision reference 0, relative diff 0
+[PASS] all_zero_scales            got 0x00000000 exp 0x00000000  (0)  busy-polls=4  sim-time=8080 ns
+        double-precision reference 0, relative diff 0
+[PASS] exact_cancellation_zero    got 0x00000000 exp 0x00000000  (0)  busy-polls=4  sim-time=8080 ns
+        double-precision reference 0, relative diff 0
+[PASS] single_element             got 0xc6f090f6 exp 0xc6f090f6  (-30792.4805)  busy-polls=4  sim-time=8080 ns
+        double-precision reference -30792.4805, relative diff 0
+[PASS] moderate_random            got 0xc878b1a4 exp 0xc878b1a4  (-254662.562)  busy-polls=4  sim-time=8080 ns
+        double-precision reference -254662.557, relative diff 2.14e-08
+[PASS] near_2^-14_boundary        got 0x3a41a94a exp 0x3a41a94a  (0.000738759176)  busy-polls=4  sim-time=8080 ns
+        double-precision reference 0.00073875915, relative diff 3.45e-08
+[PASS] subnormal_scales           got 0x374750b0 exp 0x374750b0  (1.18801108e-05)  busy-polls=4  sim-time=8080 ns
+        double-precision reference 1.18801112e-05, relative diff 2.84e-08
+[PASS] min_subnormal_2^-24        got 0x335c8380 exp 0x335c8380  (5.13423402e-08)  busy-polls=4  sim-time=8080 ns
+        double-precision reference 5.13423402e-08, relative diff 0
+[PASS] large_scales               got 0x5714ecbe exp 0x5714ecbe  (1.63744521e+14)  busy-polls=4  sim-time=8080 ns
+        double-precision reference 1.63744518e+14, relative diff 1.75e-08
+[PASS] max_magnitude              got 0x5b5c4c63 exp 0x5b5c4c63  (6.2008483e+16)  busy-polls=4  sim-time=8080 ns
+        double-precision reference 6.20084811e+16, relative diff 2.97e-08
+[PASS] mixed_subnormal_normal     got 0x4d7ccaa7 exp 0x4d7ccaa7  (265071216)  busy-polls=4  sim-time=8080 ns
+        double-precision reference 265071219, relative diff 1.03e-08
+[PASS] wide_range_random_0        got 0xd52d4b5a exp 0xd52d4b5a  (-1.19086965e+13)  busy-polls=4  sim-time=8080 ns
+        double-precision reference -1.19086962e+13, relative diff 2.77e-08
+[PASS] wide_range_random_1        got 0xca99e718 exp 0xca99e718  (-5043084)  busy-polls=4  sim-time=8080 ns
+        double-precision reference -5043083.96, relative diff 7.49e-09
+[PASS] wide_range_random_2        got 0xd2823a46 exp 0xd2823a46  (-2.79661707e+11)  busy-polls=4  sim-time=8080 ns
+        double-precision reference -2.79661713e+11, relative diff 2.17e-08
+[PASS] wide_range_random_3        got 0x52ba89ba exp 0x52ba89ba  (4.00587293e+11)  busy-polls=4  sim-time=8080 ns
+        double-precision reference 4.005873e+11, relative diff 1.78e-08
+
+ALL PASSED: 18/18 cases passed

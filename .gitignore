@@ -1,0 +1,11 @@
+images/
+tmp/
+systemctlm-cosim-demo/
+QEMU_SystemC_app/
+*.o
+*.d
+*.a
+*.vcd
+*.bak
+part3/*_demo
+part3/dot_golden_test
