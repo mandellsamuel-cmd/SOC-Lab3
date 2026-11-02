@@ -78,7 +78,8 @@ SC_MODULE(Top)
  
  
   dot_product dot_accel; // Our accelerator
-  
+  iconnect<1, 1> *mbus;  // accelerator's bus-master path into system memory (S_AXI_HP0_FPD)
+
   
 	demodma *dma[NR_DEMODMA];
 
@@ -329,6 +330,13 @@ SC_MODULE(Top)
         
     bus.memmap(0xa0400000ULL, 0x10000 - 1,
                 ADDRMODE_RELATIVE, -1, dot_accel.target_socket);
+
+    // DMA mode: the accelerator reads x/y itself through the non-coherent HP0 port.
+    // Base 0 keeps addresses unchanged; dot_product.h only accepts DRAM (0x0-0x7FFFFFFF) and OCM (0xFFFC0000+).
+    mbus = new iconnect<1, 1>("membus");
+    mbus->memmap(0x0LL, 0xffffffff,      // size is inclusive (last offset), so this covers up to 0xFFFFFFFF
+                ADDRMODE_RELATIVE, -1, *(zynq.s_axi_hp_fpd[0]));
+    dot_accel.master_socket.bind(*(mbus->t_sk[0]));
 
 		for (i = 0; i < (sizeof dma / sizeof dma[0]); i++) {
 			bus.memmap(0xa0010000ULL + 0x100 * i, 0x18 - 1,

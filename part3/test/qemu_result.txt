@@ -1,0 +1,21 @@
+dot-product accelerator golden test, 18 cases
+[PASS] ones_unit_scale            got 0x44600000 exp 0x44600000  (896)  busy-polls=0  sim-time=4000040 ns
+[PASS] max_positive_sum           got 0x4b600000 exp 0x4b600000  (14680064)  busy-polls=0  sim-time=4000040 ns
+[PASS] max_negative_sum           got 0xcb5e4000 exp 0xcb5e4000  (-14565376)  busy-polls=0  sim-time=4000040 ns
+[PASS] all_zero_quants            got 0x00000000 exp 0x00000000  (0)  busy-polls=0  sim-time=4000040 ns
+[PASS] all_zero_scales            got 0x00000000 exp 0x00000000  (0)  busy-polls=0  sim-time=4000040 ns
+[PASS] exact_cancellation_zero    got 0x00000000 exp 0x00000000  (0)  busy-polls=0  sim-time=4000040 ns
+[PASS] single_element             got 0xc6f090f6 exp 0xc6f090f6  (-30792.4805)  busy-polls=0  sim-time=4000040 ns
+[PASS] moderate_random            got 0xc878b1a4 exp 0xc878b1a4  (-254662.562)  busy-polls=0  sim-time=4000040 ns
+[PASS] near_2^-14_boundary        got 0x3a41a94a exp 0x3a41a94a  (0.000738759176)  busy-polls=0  sim-time=4000040 ns
+[PASS] subnormal_scales           got 0x374750b0 exp 0x374750b0  (1.18801108e-05)  busy-polls=0  sim-time=4000040 ns
+[PASS] min_subnormal_2^-24        got 0x335c8380 exp 0x335c8380  (5.13423402e-08)  busy-polls=0  sim-time=4000040 ns
+[PASS] large_scales               got 0x5714ecbe exp 0x5714ecbe  (1.63744521e+14)  busy-polls=0  sim-time=87501 ns
+[PASS] max_magnitude              got 0x5b5c4c63 exp 0x5b5c4c63  (6.2008483e+16)  busy-polls=0  sim-time=88868 ns
+[PASS] mixed_subnormal_normal     got 0x4d7ccaa7 exp 0x4d7ccaa7  (265071216)  busy-polls=0  sim-time=89148 ns
+[PASS] wide_range_random_0        got 0xd52d4b5a exp 0xd52d4b5a  (-1.19086965e+13)  busy-polls=0  sim-time=89025 ns
+[PASS] wide_range_random_1        got 0xca99e718 exp 0xca99e718  (-5043084)  busy-polls=0  sim-time=94552 ns
+[PASS] wide_range_random_2        got 0xd2823a46 exp 0xd2823a46  (-2.79661707e+11)  busy-polls=0  sim-time=88944 ns
+[PASS] wide_range_random_3        got 0x52ba89ba exp 0x52ba89ba  (4.00587293e+11)  busy-polls=0  sim-time=88724 ns
+
+ALL PASSED: 18/18 cases passed

@@ -27,6 +27,10 @@
 INSTALL ?= install
 PYTHON ?= python2
 
+# LRC logins load the Synopsys VCS module, which sets VCS_HOME and would switch this Makefile to its
+# VCS/Verilog build. We use the plain SystemC build, so ignore the environment value.
+VCS_HOME :=
+
 ifneq "$(VCS_HOME)" ""
 SYSTEMC_INCLUDE ?=$(VCS_HOME)/include/systemc232/
 SYSTEMC_LIBDIR ?= $(VCS_HOME)/linux/lib
@@ -133,7 +137,9 @@ SC_OBJS += hls_q8_dot_vec_fixed.o
 
 LIBSOC_PATH=libsystemctlm-soc
 
-CPPFLAGS += -I /usr/local/packages/Xilinx_2022.2/Vitis_HLS/2022.2/include
+# Vitis HLS headers (hls_half.h, ap_int.h, utils/x_hls_utils.h) for the Lab 2 kernel
+VITIS_HLS_INCLUDE ?= /usr/local/packages/Xilinx_2022.2/Vitis_HLS/2022.2/include
+CPPFLAGS += -I $(VITIS_HLS_INCLUDE)
 
 CPPFLAGS += -I $(LIBSOC_PATH)
 

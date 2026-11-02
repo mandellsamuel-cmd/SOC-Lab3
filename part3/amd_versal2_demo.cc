@@ -1,1 +1,0 @@
-../systemctlm-cosim-demo/amd_versal2_demo.cc

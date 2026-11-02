@@ -9,3 +9,9 @@ QEMU_SystemC_app/
 *.bak
 part3/*_demo
 part3/dot_golden_test
+part3/test/dot_golden_test
+part3/test/dot_golden_test_host
+part3/test/dot_dma_test
+part3/test/dot_dma_test_host
+part3/test/host_sim/tb_dot_product
+part3/test/host_sim/HLS_arbitrary_Precision_Types/

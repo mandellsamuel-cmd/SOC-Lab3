@@ -1,0 +1,49 @@
+
+        SystemC 2.3.4-Accellera --- Oct 27 2026 16:00:03
+        Copyright (c) 1996-2022 by all Contributors,
+        ALL RIGHTS RESERVED
+host testbench, 18 golden cases
+-- copy mode (ARM writes the scratchpads, CTRL=1)
+[PASS] ones_unit_scale            got 0x44600000 exp 0x44600000 busy-polls=456 start->done=4580 ns busy-ns=4570
+[PASS] max_positive_sum           got 0x4b600000 exp 0x4b600000 busy-polls=456 start->done=4580 ns busy-ns=4570
+[PASS] max_negative_sum           got 0xcb5e4000 exp 0xcb5e4000 busy-polls=456 start->done=4580 ns busy-ns=4570
+[PASS] all_zero_quants            got 0x00000000 exp 0x00000000 busy-polls=456 start->done=4580 ns busy-ns=4570
+[PASS] all_zero_scales            got 0x00000000 exp 0x00000000 busy-polls=456 start->done=4580 ns busy-ns=4570
+[PASS] exact_cancellation_zero    got 0x00000000 exp 0x00000000 busy-polls=456 start->done=4580 ns busy-ns=4570
+[PASS] single_element             got 0xc6f090f6 exp 0xc6f090f6 busy-polls=456 start->done=4580 ns busy-ns=4570
+[PASS] moderate_random            got 0xc878b1a4 exp 0xc878b1a4 busy-polls=456 start->done=4580 ns busy-ns=4570
+[PASS] near_2^-14_boundary        got 0x3a41a94a exp 0x3a41a94a busy-polls=456 start->done=4580 ns busy-ns=4570
+[PASS] subnormal_scales           got 0x374750b0 exp 0x374750b0 busy-polls=456 start->done=4580 ns busy-ns=4570
+[PASS] min_subnormal_2^-24        got 0x335c8380 exp 0x335c8380 busy-polls=456 start->done=4580 ns busy-ns=4570
+[PASS] large_scales               got 0x5714ecbe exp 0x5714ecbe busy-polls=456 start->done=4580 ns busy-ns=4570
+[PASS] max_magnitude              got 0x5b5c4c63 exp 0x5b5c4c63 busy-polls=456 start->done=4580 ns busy-ns=4570
+[PASS] mixed_subnormal_normal     got 0x4d7ccaa7 exp 0x4d7ccaa7 busy-polls=456 start->done=4580 ns busy-ns=4570
+[PASS] wide_range_random_0        got 0xd52d4b5a exp 0xd52d4b5a busy-polls=456 start->done=4580 ns busy-ns=4570
+[PASS] wide_range_random_1        got 0xca99e718 exp 0xca99e718 busy-polls=456 start->done=4580 ns busy-ns=4570
+[PASS] wide_range_random_2        got 0xd2823a46 exp 0xd2823a46 busy-polls=456 start->done=4580 ns busy-ns=4570
+[PASS] wide_range_random_3        got 0x52ba89ba exp 0x52ba89ba busy-polls=456 start->done=4580 ns busy-ns=4570
+-- DMA mode (accelerator fetches block_q8_0 x/y from OCM, CTRL=3)
+[PASS] ones_unit_scale            got 0x44600000 exp 0x44600000 err=0 bursts=8 busy-polls=577 start->done=5790 ns busy-ns=5778
+[PASS] max_positive_sum           got 0x4b600000 exp 0x4b600000 err=0 bursts=8 busy-polls=577 start->done=5790 ns busy-ns=5778
+[PASS] max_negative_sum           got 0xcb5e4000 exp 0xcb5e4000 err=0 bursts=8 busy-polls=577 start->done=5790 ns busy-ns=5778
+[PASS] all_zero_quants            got 0x00000000 exp 0x00000000 err=0 bursts=8 busy-polls=577 start->done=5790 ns busy-ns=5778
+[PASS] all_zero_scales            got 0x00000000 exp 0x00000000 err=0 bursts=8 busy-polls=577 start->done=5790 ns busy-ns=5778
+[PASS] exact_cancellation_zero    got 0x00000000 exp 0x00000000 err=0 bursts=8 busy-polls=577 start->done=5790 ns busy-ns=5778
+[PASS] single_element             got 0xc6f090f6 exp 0xc6f090f6 err=0 bursts=8 busy-polls=577 start->done=5790 ns busy-ns=5778
+[PASS] moderate_random            got 0xc878b1a4 exp 0xc878b1a4 err=0 bursts=8 busy-polls=577 start->done=5790 ns busy-ns=5778
+[PASS] near_2^-14_boundary        got 0x3a41a94a exp 0x3a41a94a err=0 bursts=8 busy-polls=577 start->done=5790 ns busy-ns=5778
+[PASS] subnormal_scales           got 0x374750b0 exp 0x374750b0 err=0 bursts=8 busy-polls=577 start->done=5790 ns busy-ns=5778
+[PASS] min_subnormal_2^-24        got 0x335c8380 exp 0x335c8380 err=0 bursts=8 busy-polls=577 start->done=5790 ns busy-ns=5778
+[PASS] large_scales               got 0x5714ecbe exp 0x5714ecbe err=0 bursts=8 busy-polls=577 start->done=5790 ns busy-ns=5778
+[PASS] max_magnitude              got 0x5b5c4c63 exp 0x5b5c4c63 err=0 bursts=8 busy-polls=577 start->done=5790 ns busy-ns=5778
+[PASS] mixed_subnormal_normal     got 0x4d7ccaa7 exp 0x4d7ccaa7 err=0 bursts=8 busy-polls=577 start->done=5790 ns busy-ns=5778
+[PASS] wide_range_random_0        got 0xd52d4b5a exp 0xd52d4b5a err=0 bursts=8 busy-polls=577 start->done=5790 ns busy-ns=5778
+[PASS] wide_range_random_1        got 0xca99e718 exp 0xca99e718 err=0 bursts=8 busy-polls=577 start->done=5790 ns busy-ns=5778
+[PASS] wide_range_random_2        got 0xd2823a46 exp 0xd2823a46 err=0 bursts=8 busy-polls=577 start->done=5790 ns busy-ns=5778
+[PASS] wide_range_random_3        got 0x52ba89ba exp 0x52ba89ba err=0 bursts=8 busy-polls=577 start->done=5790 ns busy-ns=5778
+-- DMA error path (X_ADDR outside DRAM/OCM)
+[PASS] bad address -> ERROR=1 (expect 1)
+
+ALL PASSED: 37/37 passed
+
+Info: /OSCI/SystemC: Simulation stopped by user.
