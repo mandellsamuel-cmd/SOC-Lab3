@@ -1,0 +1,98 @@
+From 0336fe8eb0fd83655b06740521a19fed3f0bcbd9 Mon Sep 17 00:00:00 2001
+From: ericjgoode <ejgoode17@gmail.com>
+Date: Mon, 2 Nov 2026 17:05:28 -0600
+Subject: [PATCH] ggml-cpu: optional ECE382M Lab 3 FPGA HAL for the Q8_0 dot
+ product
+
+With -DGGML_FPGA_HAL=ON -DGGML_FPGA_HAL_DIR=<SOC-Lab3/part4> the ARM build compiles hal/dot_hal.c from
+that directory, which provides ggml_vec_dot_q8_0_q8_0 (same signature) and runs it on the accelerator
+through /dev/dotprod. The original ARM implementation is renamed ggml_vec_dot_q8_0_q8_0_cpu and stays
+available as the HAL fallback and for DOT_HAL_CHECK. Default OFF: a normal build is unchanged.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ ggml/CMakeLists.txt                 |  2 ++
+ ggml/src/ggml-cpu/CMakeLists.txt    | 10 ++++++++++
+ ggml/src/ggml-cpu/arch/arm/quants.c |  9 +++++++++
+ ggml/src/ggml-cpu/quants.h          |  4 ++++
+ 4 files changed, 25 insertions(+)
+
+diff --git a/ggml/CMakeLists.txt b/ggml/CMakeLists.txt
+index 4af7fc881..bf1eb95d8 100644
+--- a/ggml/CMakeLists.txt
++++ b/ggml/CMakeLists.txt
+@@ -151,6 +151,8 @@ message(DEBUG "INS_ENB             : ${INS_ENB}")
+ option(GGML_CPU_HBM          "ggml: use memkind for CPU HBM" OFF)
+ option(GGML_CPU_REPACK       "ggml: use runtime weight conversion of Q4_0 to Q4_X_X" ON)
+ option(GGML_CPU_KLEIDIAI     "ggml: use KleidiAI optimized kernels if applicable" OFF)
++option(GGML_FPGA_HAL         "ggml: Q8_0 dot products on the ECE382M Lab 3 FPGA accelerator (ARM only)" OFF)
++set(GGML_FPGA_HAL_DIR "" CACHE PATH "ggml: directory that contains hal/dot_hal.c (SOC-Lab3/part4)")
+ option(GGML_SSE42            "ggml: enable SSE 4.2"          ${INS_ENB})
+ option(GGML_AVX              "ggml: enable AVX"              ${INS_ENB})
+ option(GGML_AVX_VNNI         "ggml: enable AVX-VNNI"         OFF)
+diff --git a/ggml/src/ggml-cpu/CMakeLists.txt b/ggml/src/ggml-cpu/CMakeLists.txt
+index 71f55b490..e6d84a837 100644
+--- a/ggml/src/ggml-cpu/CMakeLists.txt
++++ b/ggml/src/ggml-cpu/CMakeLists.txt
+@@ -106,6 +106,16 @@ function(ggml_add_cpu_backend_variant_impl tag_name)
+             ggml-cpu/arch/arm/repack.cpp
+             )
+ 
++        # ECE382M Lab 3: ggml_vec_dot_q8_0_q8_0 comes from the FPGA HAL; the original is renamed to ..._cpu (arch/arm/quants.c)
++        if (GGML_FPGA_HAL)
++            if (NOT EXISTS "${GGML_FPGA_HAL_DIR}/hal/dot_hal.c")
++                message(FATAL_ERROR "GGML_FPGA_HAL: set GGML_FPGA_HAL_DIR to the directory that contains hal/dot_hal.c")
++            endif()
++            message(STATUS "FPGA HAL: Q8_0 dot products through ${GGML_FPGA_HAL_DIR}/hal/dot_hal.c")
++            list(APPEND GGML_CPU_SOURCES ${GGML_FPGA_HAL_DIR}/hal/dot_hal.c)
++            target_compile_definitions(${GGML_CPU_NAME} PRIVATE GGML_FPGA_HAL)
++        endif()
++
+         # MSVC proper (not clang-cl) has no -mcpu/-march for ARM: features can only be
+         # selected by probing the host at configure time and forwarding -D__ARM_FEATURE_*
+         if (MSVC AND NOT CMAKE_C_COMPILER_ID STREQUAL "Clang")
+diff --git a/ggml/src/ggml-cpu/arch/arm/quants.c b/ggml/src/ggml-cpu/arch/arm/quants.c
+index cfbbf6617..5c076d320 100644
+--- a/ggml/src/ggml-cpu/arch/arm/quants.c
++++ b/ggml/src/ggml-cpu/arch/arm/quants.c
+@@ -1147,6 +1147,11 @@ void ggml_vec_dot_q5_1_q8_1(int n, float * GGML_RESTRICT s, size_t bs, const voi
+     *s = sumf;
+ }
+ 
++#ifdef GGML_FPGA_HAL
++// ECE382M Lab 3: the FPGA HAL (dot_hal.c) provides ggml_vec_dot_q8_0_q8_0; this CPU version is renamed
++// so the HAL can call it as a fallback and to check the accelerator
++#define ggml_vec_dot_q8_0_q8_0 ggml_vec_dot_q8_0_q8_0_cpu
++#endif
+ void ggml_vec_dot_q8_0_q8_0(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc) {
+     const int qk = QK8_0;
+     const int nb = n / qk;
+@@ -1394,6 +1399,10 @@ void ggml_vec_dot_q8_0_q8_0(int n, float * GGML_RESTRICT s, size_t bs, const voi
+     *s = sumf;
+ }
+ 
++#ifdef GGML_FPGA_HAL
++#undef ggml_vec_dot_q8_0_q8_0
++#endif
++
+ void ggml_vec_dot_tq1_0_q8_K(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc) {
+     assert(nrc == 1);
+     UNUSED(nrc);
+diff --git a/ggml/src/ggml-cpu/quants.h b/ggml/src/ggml-cpu/quants.h
+index 93ea7eeff..fe6ed4d60 100644
+--- a/ggml/src/ggml-cpu/quants.h
++++ b/ggml/src/ggml-cpu/quants.h
+@@ -45,6 +45,10 @@ void ggml_vec_dot_q4_1_q8_1(int n, float * GGML_RESTRICT s, size_t bs, const voi
+ void ggml_vec_dot_q5_0_q8_0(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc);
+ void ggml_vec_dot_q5_1_q8_1(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc);
+ void ggml_vec_dot_q8_0_q8_0(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc);
++#ifdef GGML_FPGA_HAL
++// ECE382M Lab 3: ggml_vec_dot_q8_0_q8_0 is provided by the FPGA HAL (dot_hal.c); this is the original CPU version
++void ggml_vec_dot_q8_0_q8_0_cpu(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc);
++#endif
+ 
+ void ggml_vec_dot_mxfp4_q8_0(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc);
+ void ggml_vec_dot_nvfp4_q8_0(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc);
+-- 
+2.43.7
+

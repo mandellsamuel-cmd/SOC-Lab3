@@ -15,3 +15,10 @@ part3/test/dot_dma_test
 part3/test/dot_dma_test_host
 part3/test/host_sim/tb_dot_product
 part3/test/host_sim/HLS_arbitrary_Precision_Types/
+part4/test/hal_test
+part4/driver/*.ko
+part4/driver/*.mod
+part4/driver/*.mod.c
+part4/driver/.*.cmd
+part4/driver/modules.order
+part4/driver/Module.symvers

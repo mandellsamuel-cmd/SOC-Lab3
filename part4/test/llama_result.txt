@@ -1,0 +1,94 @@
+# Part 4(b): llama.cpp (branch lab3-fpga-hal) with the HAL on the full QEMU + SystemC co-simulation (LRC), sync quantum 1000000 ns
+# model tinystories-gpt-0.1-3m.Q8_0.gguf, prompt "Once upon a time", -n 10 --temp 0 -no-cnv --no-warmup -c 128 -t $(nproc), 2026-11-02
+# 1) reference: DOT_HAL_DISABLE=1 (llama.cpp's own ARM code);  2) insmod dotprod_drv.ko install=1; DOT_HAL_CHECK=2 DOT_HAL_VERBOSE=1 (accelerator + checks)
+[driver 17:34:34] === CPU reference (accelerator off) ===
+----- cpu text:
+Once upon a time, there was a little girl named Lily. She
+----- cpu log:
+0.04.424.854 I common_perf_print:    sampling time =      19.55 ms
+0.04.424.959 I common_perf_print:    samplers time =       8.30 ms /    14 tokens
+0.04.425.120 I common_perf_print:        load time =      70.07 ms
+0.04.425.247 I common_perf_print: prompt eval time =      52.18 ms /     4 tokens (   13.05 ms per token,    76.65 tokens per second)
+0.04.425.328 I common_perf_print:        eval time =     144.98 ms /     9 runs   (   16.11 ms per token,    62.08 tokens per second)
+0.04.425.392 I common_perf_print:       total time =     237.40 ms /    13 tokens
+0.04.425.472 I common_perf_print: unaccounted time =      20.69 ms /   8.7 %      (total - sampling - prompt eval - eval) / (total)
+0.04.425.507 I common_perf_print:    graphs reused =          8
+dot_hal: 561514 calls, 0 accelerator ops, 561514 CPU fallbacks, 0 hw errors; vs CPU code: 0 checked, 0 mismatches, worst error 0 of the allowed; vs exact result: 0 checked, 0 not correctly rounded
+[driver 17:34:39] llama-completion cpu (-n 10) -> exit 0
+[driver 17:34:39] === accelerator, copy mode ===
+Password: [   42.328975] dotprod_drv: loading out-of-tree module taints kernel.
+[   42.335190] dotprod dotprod: dotprod: probing
+[   42.348720] dotprod dotprod: dotprod: 0xa0400000 size 0x00010000 mapped to 0xffff800009ba0000, copy mode, /dev/dotprod (10, 125)
+[   42.349491] dotprod dotprod: dotprod: dotprod_drv 1.0 initialized
+crw-rw-rw-    1 root     root       10, 125 Nov  2 23:34 /dev/dotprod
+mode                 copy (driver writes scratchpads)
+registers            0xa0400000 - 0xa040ffff
+dot products         0
+busy ns (avg / max)  0 / 0
+timeouts             0
+hardware errors      0
+interrupts           0
+dot-product HAL test
+-- golden cases (n = 896, bit-exact)
+[PASS] ones_unit_scale            got 0x44600000 exp 0x44600000
+[PASS] max_positive_sum           got 0x4b600000 exp 0x4b600000
+[PASS] max_negative_sum           got 0xcb5e4000 exp 0xcb5e4000
+[PASS] all_zero_quants            got 0x00000000 exp 0x00000000
+[PASS] all_zero_scales            got 0x00000000 exp 0x00000000
+[PASS] exact_cancellation_zero    got 0x00000000 exp 0x00000000
+[PASS] single_element             got 0xc6f090f6 exp 0xc6f090f6
+[PASS] moderate_random            got 0xc878b1a4 exp 0xc878b1a4
+[PASS] near_2^-14_boundary        got 0x3a41a94a exp 0x3a41a94a
+[PASS] subnormal_scales           got 0x374750b0 exp 0x374750b0
+[PASS] min_subnormal_2^-24        got 0x335c8380 exp 0x335c8380
+[PASS] large_scales               got 0x5714ecbe exp 0x5714ecbe
+[PASS] max_magnitude              got 0x5b5c4c63 exp 0x5b5c4c63
+[PASS] mixed_subnormal_normal     got 0x4d7ccaa7 exp 0x4d7ccaa7
+[PASS] wide_range_random_0        got 0xd52d4b5a exp 0xd52d4b5a
+[PASS] wide_range_random_1        got 0xca99e718 exp 0xca99e718
+[PASS] wide_range_random_2        got 0xd2823a46 exp 0xd2823a46
+[PASS] wide_range_random_3        got 0x52ba89ba exp 0x52ba89ba
+-- random vectors (HW vs exact result and vs CPU code)
+[PASS] n = 32   ( 1 blocks, 1 HW op)  5 vectors, worst difference to the CPU code = 0.000 of the allowed bound
+[PASS] n = 64   ( 2 blocks, 1 HW op)  5 vectors, worst difference to the CPU code = 0.000 of the allowed bound
+[PASS] n = 256  ( 8 blocks, 1 HW op)  5 vectors, worst difference to the CPU code = 0.010 of the allowed bound
+[PASS] n = 896  (28 blocks, 1 HW op)  5 vectors, worst difference to the CPU code = 0.004 of the allowed bound
+[PASS] n = 1024 (32 blocks, 2 HW ops)  5 vectors, worst difference to the CPU code = 0.003 of the allowed bound
+[PASS] n = 2048 (64 blocks, 3 HW ops)  5 vectors, worst difference to the CPU code = 0.003 of the allowed bound
+-- 4 threads x 40 calls at the same time
+[PASS] 160 concurrent calls, 0 wrong
+-- accelerator usage
+[PASS] no CPU fallbacks, no hardware errors (calls 208, accelerator ops 223, fallbacks 0, hw errors 0)
+[PASS] accelerator was used (223 operations)
+ALL PASSED: 0 checks failed
+[driver 17:34:40] hal_test (copy mode, normal user) -> exit 0
+[1] 647
+[   54.857300] hrtimer: interrupt took 9698908 ns
+----- hal text:
+Once upon a time, there was a little girl named Lily. She
+[1]+  Terminated              ( while sleep 60; do
+    echo "progress: $(grep 'dot products' /proc/dotprod)";
+done )
+----- hal log:
+9.20.688.791 I common_perf_print:    sampling time =      25.87 ms
+9.20.688.897 I common_perf_print:    samplers time =       9.76 ms /    14 tokens
+9.20.688.979 I common_perf_print:        load time =   68233.69 ms
+9.20.689.070 I common_perf_print: prompt eval time =   68232.38 ms /     4 tokens (17058.10 ms per token,     0.06 tokens per second)
+9.20.689.157 I common_perf_print:        eval time =  466834.85 ms /     9 runs   (51870.54 ms per token,     0.02 tokens per second)
+9.20.689.225 I common_perf_print:       total time =  535103.03 ms /    13 tokens
+9.20.689.265 I common_perf_print: unaccounted time =       9.93 ms /   0.0 %      (total - sampling - prompt eval - eval) / (total)
+9.20.689.305 I common_perf_print:    graphs reused =          8
+dot_hal: 561514 calls, 561514 accelerator ops, 0 CPU fallbacks, 0 hw errors; vs CPU code: 561514 checked, 0 mismatches, worst error 0.17 of the allowed; vs exact result: 561514 checked, 0 not correctly rounded
+[driver 17:44:01] llama-completion hal (-n 10) -> exit 0
+----- compare:
+TEXT IDENTICAL to the CPU reference
+mode                 copy (driver writes scratchpads)
+registers            0xa0400000 - 0xa040ffff
+dot products         561738
+busy ns (avg / max)  4570 / 4570
+timeouts             0
+hardware errors      0
+interrupts           0
+[driver 17:44:01] compare + /proc -> exit 0
+Password: [  582.672366] dotprod dotprod: dotprod: dotprod_drv 1.0 removed
+[driver 17:44:01] rmmod -> exit 0

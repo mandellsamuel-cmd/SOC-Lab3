@@ -1,0 +1,129 @@
+# Part 4(a): driver + HAL on the full QEMU + SystemC co-simulation (LRC), sync quantum 1000000 ns, 2026-11-02 (final code)
+# Guest console: sudo insmod dotprod_drv.ko install=1 [dma=1]; ./hal_test (normal user); DOT_HAL_CHECK=1 DOT_HAL_VERBOSE=1 ./hal_test | tail -4; cat /proc/dotprod
+[driver 17:45:48] === copy mode ===
+[   35.612666] dotprod dotprod: dotprod: 0xa0400000 size 0x00010000 mapped to 0xffff800009b20000, copy mode, /dev/dotprod (10, 125)
+[driver 17:45:48] insmod (copy) -> exit 0
+[   35.593847] dotprod_drv: loading out-of-tree module taints kernel.
+[   35.612666] dotprod dotprod: dotprod: 0xa0400000 size 0x00010000 mapped to 0xffff800009b20000, copy mode, /dev/dotprod (10, 125)
+crw-rw-rw-    1 root     root       10, 125 Nov  2 23:45 /dev/dotprod
+mode                 copy (driver writes scratchpads)
+registers            0xa0400000 - 0xa040ffff
+dot products         0
+busy ns (avg / max)  0 / 0
+timeouts             0
+hardware errors      0
+interrupts           0
+[driver 17:45:48] device / proc (copy) -> exit 0
+dot-product HAL test
+-- golden cases (n = 896, bit-exact)
+[PASS] ones_unit_scale            got 0x44600000 exp 0x44600000
+[PASS] max_positive_sum           got 0x4b600000 exp 0x4b600000
+[PASS] max_negative_sum           got 0xcb5e4000 exp 0xcb5e4000
+[PASS] all_zero_quants            got 0x00000000 exp 0x00000000
+[PASS] all_zero_scales            got 0x00000000 exp 0x00000000
+[PASS] exact_cancellation_zero    got 0x00000000 exp 0x00000000
+[PASS] single_element             got 0xc6f090f6 exp 0xc6f090f6
+[PASS] moderate_random            got 0xc878b1a4 exp 0xc878b1a4
+[PASS] near_2^-14_boundary        got 0x3a41a94a exp 0x3a41a94a
+[PASS] subnormal_scales           got 0x374750b0 exp 0x374750b0
+[PASS] min_subnormal_2^-24        got 0x335c8380 exp 0x335c8380
+[PASS] large_scales               got 0x5714ecbe exp 0x5714ecbe
+[PASS] max_magnitude              got 0x5b5c4c63 exp 0x5b5c4c63
+[PASS] mixed_subnormal_normal     got 0x4d7ccaa7 exp 0x4d7ccaa7
+[PASS] wide_range_random_0        got 0xd52d4b5a exp 0xd52d4b5a
+[PASS] wide_range_random_1        got 0xca99e718 exp 0xca99e718
+[PASS] wide_range_random_2        got 0xd2823a46 exp 0xd2823a46
+[PASS] wide_range_random_3        got 0x52ba89ba exp 0x52ba89ba
+-- random vectors (HW vs exact result and vs CPU code)
+[PASS] n = 32   ( 1 blocks, 1 HW op)  5 vectors, worst difference to the CPU code = 0.000 of the allowed bound
+[PASS] n = 64   ( 2 blocks, 1 HW op)  5 vectors, worst difference to the CPU code = 0.000 of the allowed bound
+[PASS] n = 256  ( 8 blocks, 1 HW op)  5 vectors, worst difference to the CPU code = 0.010 of the allowed bound
+[PASS] n = 896  (28 blocks, 1 HW op)  5 vectors, worst difference to the CPU code = 0.004 of the allowed bound
+[PASS] n = 1024 (32 blocks, 2 HW ops)  5 vectors, worst difference to the CPU code = 0.003 of the allowed bound
+[PASS] n = 2048 (64 blocks, 3 HW ops)  5 vectors, worst difference to the CPU code = 0.003 of the allowed bound
+-- 4 threads x 40 calls at the same time
+[PASS] 160 concurrent calls, 0 wrong
+-- accelerator usage
+[PASS] no CPU fallbacks, no hardware errors (calls 208, accelerator ops 223, fallbacks 0, hw errors 0)
+[PASS] accelerator was used (223 operations)
+ALL PASSED: 0 checks failed
+[driver 17:45:49] hal_test (copy mode, as a normal user) -> exit 0
+dot_hal: 209 calls, 224 accelerator ops, 0 CPU fallbacks, 0 hw errors; vs CPU code: 209 checked, 0 mismatches, worst error 0.0658 of the allowed; vs exact result: 199 checked, 0 not correctly rounded
+[PASS] no CPU fallbacks, no hardware errors (calls 208, accelerator ops 223, fallbacks 0, hw errors 0)
+[PASS] accelerator was used (223 operations)
+ALL PASSED: 0 checks failed
+[driver 17:45:50] hal_test with DOT_HAL_CHECK=1 (copy) -> exit 0
+mode                 copy (driver writes scratchpads)
+registers            0xa0400000 - 0xa040ffff
+dot products         448
+busy ns (avg / max)  4570 / 4570
+timeouts             0
+hardware errors      0
+interrupts           0
+[driver 17:45:50] /proc/dotprod after the tests (copy) -> exit 0
+[driver 17:45:50] rmmod (copy) -> exit 0
+[driver 17:45:50] === dma mode ===
+[   38.087850] dotprod dotprod: dotprod: DMA buffers x 0x01800000 y 0x01801000
+[   38.091686] dotprod dotprod: dotprod: 0xa0400000 size 0x00010000 mapped to 0xffff800009a80000, dma mode, /dev/dotprod (10, 125)
+[driver 17:45:51] insmod (dma) -> exit 0
+[   38.087850] dotprod dotprod: dotprod: DMA buffers x 0x01800000 y 0x01801000
+[   38.091686] dotprod dotprod: dotprod: 0xa0400000 size 0x00010000 mapped to 0xffff800009a80000, dma mode, /dev/dotprod (10, 125)
+crw-rw-rw-    1 root     root       10, 125 Nov  2 23:45 /dev/dotprod
+mode                 dma (accelerator fetches operands)
+registers            0xa0400000 - 0xa040ffff
+dma buffers          x 0x01800000  y 0x01801000
+dot products         0
+busy ns (avg / max)  0 / 0
+timeouts             0
+hardware errors      0
+interrupts           0
+[driver 17:45:51] device / proc (dma) -> exit 0
+dot-product HAL test
+-- golden cases (n = 896, bit-exact)
+[PASS] ones_unit_scale            got 0x44600000 exp 0x44600000
+[PASS] max_positive_sum           got 0x4b600000 exp 0x4b600000
+[PASS] max_negative_sum           got 0xcb5e4000 exp 0xcb5e4000
+[PASS] all_zero_quants            got 0x00000000 exp 0x00000000
+[PASS] all_zero_scales            got 0x00000000 exp 0x00000000
+[PASS] exact_cancellation_zero    got 0x00000000 exp 0x00000000
+[PASS] single_element             got 0xc6f090f6 exp 0xc6f090f6
+[PASS] moderate_random            got 0xc878b1a4 exp 0xc878b1a4
+[PASS] near_2^-14_boundary        got 0x3a41a94a exp 0x3a41a94a
+[PASS] subnormal_scales           got 0x374750b0 exp 0x374750b0
+[PASS] min_subnormal_2^-24        got 0x335c8380 exp 0x335c8380
+[PASS] large_scales               got 0x5714ecbe exp 0x5714ecbe
+[PASS] max_magnitude              got 0x5b5c4c63 exp 0x5b5c4c63
+[PASS] mixed_subnormal_normal     got 0x4d7ccaa7 exp 0x4d7ccaa7
+[PASS] wide_range_random_0        got 0xd52d4b5a exp 0xd52d4b5a
+[PASS] wide_range_random_1        got 0xca99e718 exp 0xca99e718
+[PASS] wide_range_random_2        got 0xd2823a46 exp 0xd2823a46
+[PASS] wide_range_random_3        got 0x52ba89ba exp 0x52ba89ba
+-- random vectors (HW vs exact result and vs CPU code)
+[PASS] n = 32   ( 1 blocks, 1 HW op)  5 vectors, worst difference to the CPU code = 0.000 of the allowed bound
+[PASS] n = 64   ( 2 blocks, 1 HW op)  5 vectors, worst difference to the CPU code = 0.000 of the allowed bound
+[PASS] n = 256  ( 8 blocks, 1 HW op)  5 vectors, worst difference to the CPU code = 0.010 of the allowed bound
+[PASS] n = 896  (28 blocks, 1 HW op)  5 vectors, worst difference to the CPU code = 0.004 of the allowed bound
+[PASS] n = 1024 (32 blocks, 2 HW ops)  5 vectors, worst difference to the CPU code = 0.003 of the allowed bound
+[PASS] n = 2048 (64 blocks, 3 HW ops)  5 vectors, worst difference to the CPU code = 0.003 of the allowed bound
+-- 4 threads x 40 calls at the same time
+[PASS] 160 concurrent calls, 0 wrong
+-- accelerator usage
+[PASS] no CPU fallbacks, no hardware errors (calls 208, accelerator ops 223, fallbacks 0, hw errors 0)
+[PASS] accelerator was used (223 operations)
+ALL PASSED: 0 checks failed
+[driver 17:45:51] hal_test (dma mode, as a normal user) -> exit 0
+dot_hal: 209 calls, 224 accelerator ops, 0 CPU fallbacks, 0 hw errors; vs CPU code: 209 checked, 0 mismatches, worst error 0.0658 of the allowed; vs exact result: 199 checked, 0 not correctly rounded
+[PASS] no CPU fallbacks, no hardware errors (calls 208, accelerator ops 223, fallbacks 0, hw errors 0)
+[PASS] accelerator was used (223 operations)
+ALL PASSED: 0 checks failed
+[driver 17:45:51] hal_test with DOT_HAL_CHECK=1 (dma) -> exit 0
+mode                 dma (accelerator fetches operands)
+registers            0xa0400000 - 0xa040ffff
+dma buffers          x 0x01800000  y 0x01801000
+dot products         448
+busy ns (avg / max)  362745 / 8004780
+timeouts             0
+hardware errors      0
+interrupts           0
+[driver 17:45:51] /proc/dotprod after the tests (dma) -> exit 0
+[driver 17:45:52] rmmod (dma) -> exit 0
